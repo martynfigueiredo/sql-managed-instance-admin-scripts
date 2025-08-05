@@ -1,49 +1,26 @@
 /*
     verify-backup-integrity.sql
-    For each database, locate the most recent full backup and run RESTORE VERIFYONLY
-    to confirm that the backup is readable.
+    For each user database, show the most recent full backup and its details.
 
-    Optionally, use Ola Hallengren's DatabaseBackup stored procedure with @Verify='Y'
-    and @LogToTable='Y' to automate verification and logging.
 */
 
-DECLARE @dbName SYSNAME;
-DECLARE db_cursor CURSOR FOR
-    SELECT name FROM sys.databases WHERE database_id > 4; -- Skip system databases
-
-OPEN db_cursor;
-FETCH NEXT FROM db_cursor INTO @dbName;
-
-WHILE @@FETCH_STATUS = 0
-BEGIN
-    DECLARE @backupFile NVARCHAR(260);
-
-    SELECT TOP 1 @backupFile = bmf.physical_device_name
-    FROM msdb.dbo.backupset bs
-    JOIN msdb.dbo.backupmediafamily bmf ON bs.media_set_id = bmf.media_set_id
-    WHERE bs.database_name = @dbName
-          AND bs.type = 'D'
-          AND bs.is_copy_only = 0
-    ORDER BY bs.backup_finish_date DESC;
-
-    IF @backupFile IS NOT NULL
-    BEGIN
-        DECLARE @sql NVARCHAR(4000) = N'RESTORE VERIFYONLY FROM DISK = ''' + @backupFile + ''';';
-        EXEC(@sql);
-    END;
-
-    -- To use Ola Hallengren's solution instead, uncomment and configure:
-    /*
-    EXEC dbo.DatabaseBackup
-         @Databases    = @dbName,
-         @Directory    = 'C:\Backup',
-         @BackupType   = 'FULL',
-         @Verify       = 'Y',
-         @LogToTable   = 'Y';
-    */
-
-    FETCH NEXT FROM db_cursor INTO @dbName;
-END;
-
-CLOSE db_cursor;
-DEALLOCATE db_cursor;
+SELECT 
+    db.name AS DatabaseName,
+    bs_full.backup_finish_date       AS LastFullBackupDate,
+    bmf_full.physical_device_name    AS BackupFile,
+    CAST(ROUND(bs_full.backup_size / 1024.0 / 1024.0, 2) AS DECIMAL(18,2))           AS BackupSizeMB,
+    CAST(ROUND(bs_full.compressed_backup_size / 1024.0 / 1024.0, 2) AS DECIMAL(18,2)) AS CompressedSizeMB
+FROM sys.databases AS db
+OUTER APPLY (
+    SELECT TOP 1 backup_finish_date, backup_size, compressed_backup_size, media_set_id
+    FROM msdb.dbo.backupset
+    WHERE database_name = db.name AND type = 'D' AND is_copy_only = 0
+    ORDER BY backup_finish_date DESC
+) AS bs_full
+OUTER APPLY (
+    SELECT TOP 1 physical_device_name
+    FROM msdb.dbo.backupmediafamily
+    WHERE media_set_id = bs_full.media_set_id
+) AS bmf_full
+WHERE db.database_id > 4
+ORDER BY db.name;

@@ -11,7 +11,6 @@ SELECT
     on_failure_desc,
     is_state_enabled,
     queue_delay,
-    audit_file_path,
     predicate,
     create_date,
     modify_date

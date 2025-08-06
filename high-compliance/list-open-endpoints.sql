@@ -12,9 +12,7 @@ SELECT
     e.state_desc,
     e.is_admin_endpoint,
     te.port,
-    te.is_dynamic_port,
-    e.create_date,
-    e.modify_date
+    te.is_dynamic_port
 FROM sys.endpoints AS e
 LEFT JOIN sys.tcp_endpoints AS te
     ON e.endpoint_id = te.endpoint_id

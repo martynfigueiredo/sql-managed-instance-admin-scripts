@@ -12,7 +12,6 @@ SELECT
     dp.authentication_type_desc,
     dp.default_schema_name,
     dp.create_date,
-    dp.modify_date,
-    dp.is_disabled
+    dp.modify_date
 FROM sys.database_principals AS dp
 WHERE dp.name = 'guest';

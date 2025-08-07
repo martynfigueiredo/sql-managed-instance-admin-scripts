@@ -22,7 +22,6 @@ SELECT
     s.nt_domain,
     s.nt_user_name,
     s.is_user_process,
-    s.authentication_scheme,
     c.net_transport,
     c.protocol_type,
     c.encrypt_option,

@@ -5,6 +5,7 @@
 
 DECLARE @sql NVARCHAR(MAX) = N'';
 
+-- Generate the dynamic SQL for each database
 SELECT @sql = @sql +
 'SELECT ''' + name + ''' AS database_name,
        t.schema_id,
@@ -15,13 +16,9 @@ SELECT @sql = @sql +
        c.is_nullable,
        TYPE_NAME(c.user_type_id) AS data_type,
        c.max_length,
-       c.encryption_type_desc,
        cek.name AS column_encryption_key_name,
        cek.create_date AS cek_create_date,
        cek.modify_date AS cek_modify_date,
-       cekv.encryption_algorithm_name,
-       cekv.encryption_type_desc,
-       cekv.encryption_state,
        cmk.name AS column_master_key_name,
        cmk.key_store_provider_name,
        cmk.key_path,
@@ -42,8 +39,11 @@ WHERE c.encryption_type IS NOT NULL
 UNION ALL
 '
 FROM sys.databases
-WHERE state_desc = ''ONLINE''
+WHERE state_desc = 'ONLINE'
   AND database_id > 4;
 
-SET @sql = LEFT(@sql, LEN(@sql)-LEN(''UNION ALL'')-2);
+-- Remove the last UNION ALL and trim extra space
+SET @sql = LEFT(@sql, LEN(@sql) - LEN('UNION ALL') - 2);
+
+-- Execute the dynamic SQL
 EXEC sys.sp_executesql @sql;

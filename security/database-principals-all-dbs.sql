@@ -28,4 +28,3 @@ WHERE state_desc = 'ONLINE'
   AND database_id > 4;
 
 SET @sql = LEFT(@sql, LEN(@sql)-LEN('UNION ALL')-2);
-EXEC sys.sp_executesql @sql;

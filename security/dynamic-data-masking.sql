@@ -3,6 +3,7 @@
     Reports dynamic data masking rules.
 */
 
+
 DECLARE @sql NVARCHAR(MAX) = N'';
 
 SELECT @sql = @sql +

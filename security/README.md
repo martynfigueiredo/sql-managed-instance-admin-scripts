@@ -31,3 +31,5 @@ Each script targets reporting needs such as logins, permissions, encryption, aud
 - server-role-members.sql – membership for all server roles
 - sql-logins-policy-status.sql – password and policy settings for SQL logins
 - tde-status.sql – Transparent Data Encryption state and key information
+Use them to audit logins, permissions, role memberships, encryption settings, dynamic data masking, and other security-related aspects across instances and databases. Each script returns an extensive set of columns to deliver deep visibility into security metadata.
+

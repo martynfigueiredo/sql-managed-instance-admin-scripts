@@ -48,5 +48,3 @@ SELECT @sql = STRING_AGG(
     CHAR(13)+CHAR(10)+'UNION ALL'+CHAR(13)+CHAR(10)
     ) WITHIN GROUP (ORDER BY name)
 FROM dbs;
-
-EXEC sys.sp_executesql @sql;

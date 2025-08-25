@@ -1,3 +1,23 @@
+/*
+
+select * from sys.database_scoped_configurations where name ='MAXDOP'
+
+
+--ALTER DATABASE SCOPED CONFIGURATION SET MAXDOP = 4;
+ALTER DATABASE SCOPED CONFIGURATION SET MAXDOP = 8;
+reconfigure
+
+
+sp_whoisactive
+
+
+EXEC sys.sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXEC sys.sp_configure 'max degree of parallelism', 4;
+RECONFIGURE;  -- persists
+
+*/
+
 
 /* MAXDOP recommendation based on Microsoft guidance */
 WITH sched AS (
